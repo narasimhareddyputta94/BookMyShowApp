@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(name = "`show`")
 public class Show extends BaseModel {
 
     private Date startTime;
