@@ -9,13 +9,11 @@ import lombok.Setter;
 @Setter
 @Getter
 
+public class Movie extends BaseModel{
 
-public class Seat extends BaseModel{
+    private String name;
+    private String language;
+    private String genre;
 
-
-    private int number;
-    private String seatType;
-    private int row;
-    private int column;
 
 }

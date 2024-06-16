@@ -1,21 +1,19 @@
 package com.bookmyshow.demo.models;
 
-
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Setter
 @Getter
+@Setter
 
 
-public class Seat extends BaseModel{
+public class ShowSeatType extends BaseModel{
 
-
-    private int number;
+    private Show show;
     private String seatType;
-    private int row;
-    private int column;
+    private int price;
+
 
 }
