@@ -1,19 +1,21 @@
 package com.bookmyshow.demo.models;
 
-
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Setter
-@Getter
+import java.util.List;
 
-public class Movie extends BaseModel{
+@Entity
+@Getter
+@Setter
+public class Movie extends BaseModel {
 
     private String name;
     private String language;
     private String genre;
 
-
+    @OneToMany(mappedBy = "movie")
+    private List<Show> shows;
 }

@@ -1,4 +1,6 @@
 package com.bookmyshow.demo.models;
 
-public class SeatStatus {
+public enum SeatStatus {
+    Booked,
+    notBooked
 }

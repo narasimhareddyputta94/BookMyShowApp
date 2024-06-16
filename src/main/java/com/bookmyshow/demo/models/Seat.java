@@ -1,21 +1,19 @@
 package com.bookmyshow.demo.models;
 
-
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Setter
 @Getter
+@Setter
+public class Seat extends BaseModel {
 
+    private String seatNumber;
 
-public class Seat extends BaseModel{
-
-
-    private int number;
-    private String seatType;
-    private int row;
-    private int column;
-
+    @ManyToOne
+    @JoinColumn(name = "screen_id")
+    private Screen screen;
 }

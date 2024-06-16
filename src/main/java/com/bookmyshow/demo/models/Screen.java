@@ -9,28 +9,14 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-
-
-public class Screen extends BaseModel{
+public class Screen extends BaseModel {
 
     private String name;
 
-    /*
-    screen seat
-    1       M
-    1       1
-
-    */
-    @OneToMany
+    @OneToMany(mappedBy = "screen")
     private List<Seat> seats;
-    /*
-    screen seat
-    1       M
-    1       1
 
-     */
     @Enumerated(EnumType.ORDINAL)
     @ElementCollection
     private List<Feature> features;
-
 }
