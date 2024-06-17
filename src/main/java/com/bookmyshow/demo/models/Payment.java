@@ -9,20 +9,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-
-public class Payment extends BaseModel{
-    private String refNo;
-
-    @Enumerated(EnumType.ORDINAL)
-    private PaymentStatus status;
+public class Payment extends BaseModel {
     private int amount;
-    @Enumerated(EnumType.ORDINAL)
 
-    private PaymentGateWayProvider paymentGateWayProvider;
-    @Enumerated(EnumType.ORDINAL)
-
+    @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
 
-
-
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 }

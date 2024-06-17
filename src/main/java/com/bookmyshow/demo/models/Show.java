@@ -12,7 +12,6 @@ import java.util.List;
 @Entity
 @Table(name = "`show`")
 public class Show extends BaseModel {
-
     private Date startTime;
     private Date endTime;
 
