@@ -16,4 +16,8 @@ public class Seat extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "screen_id")
     private Screen screen;
+
+    public String getSeatType() {
+        return seatNumber;
+    }
 }
