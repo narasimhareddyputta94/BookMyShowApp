@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .bookings-list {
+            margin-top: 20px;
+        }
+        .booking-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Booking System</h1>
+    <div class="form-group">
+        <label for="amount">Amount</label>
+        <input type="number" id="amount" required>
+    </div>
+    <div class="form-group">
+        <label for="bookingStatus">Booking Status</label>
+        <select id="bookingStatus" required>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="CANCELLED">CANCELLED</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="locked">Locked</label>
+        <select id="locked" required>
+            <option value="true">True</option>
+            <option value="false">False</option>
+        </select>
+    </div>
+    <button onclick="createBooking()">Create Booking</button>
+    <button onclick="getAllBookings()">Get All Bookings</button>
+
+    <div class="bookings-list" id="bookingsList"></div>
+</div>
+
+<script>
+    const apiUrl = 'http://localhost:8082/bookings';
+
+    function createBooking() {
+        const amount = document.getElementById('amount').value;
+        const bookingStatus = document.getElementById('bookingStatus').value;
+        const locked = document.getElementById('locked').value === 'true';
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount, bookingStatus, locked })
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Booking created: ' + JSON.stringify(data));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function getAllBookings() {
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const bookingsList = document.getElementById('bookingsList');
+                bookingsList.innerHTML = '';
+
+                data.forEach(booking => {
+                    const bookingItem = document.createElement('div');
+                    bookingItem.className = 'booking-item';
+                    bookingItem.innerHTML = `
+                            <p>ID: ${booking.id}</p>
+                            <p>Amount: ${booking.amount}</p>
+                            <p>Status: ${booking.bookingStatus}</p>
+                            <p>Locked: ${booking.locked}</p>
+                            <p>Lock Time: ${booking.lockTime}</p>
+                        `;
+                    bookingsList.appendChild(bookingItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+</body>
+</html>
