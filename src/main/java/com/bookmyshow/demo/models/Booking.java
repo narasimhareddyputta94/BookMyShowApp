@@ -8,6 +8,7 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -27,4 +28,8 @@ public class Booking extends BaseModel {
 
     @Version
     private Long version;
+
+    // Fields to track lock status and lock time
+    private boolean locked;
+    private LocalDateTime lockTime;
 }
