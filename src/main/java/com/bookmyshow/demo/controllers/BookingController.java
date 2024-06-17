@@ -5,6 +5,7 @@ import com.bookmyshow.demo.repositories.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,14 +33,16 @@ public class BookingController {
     }
 
     @PostMapping
+    @Transactional(timeout = 120)  // 2 minutes timeout
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
         Booking savedBooking = bookingRepository.save(booking);
         return new ResponseEntity<>(savedBooking, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Transactional(timeout = 120)  // 2 minutes timeout
     public ResponseEntity<Object> updateBooking(@PathVariable Long id, @RequestBody Booking bookingDetails) {
-        Optional<Booking> bookingOptional = bookingRepository.findById(id);
+        Optional<Booking> bookingOptional = bookingRepository.findByIdWithLock(id);
         if (!bookingOptional.isPresent()) {
             return new ResponseEntity<>("Booking not found", HttpStatus.NOT_FOUND);
         }
@@ -53,6 +56,7 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional(timeout = 120)  // 2 minutes timeout
     public ResponseEntity<Object> deleteBooking(@PathVariable Long id) {
         if (!bookingRepository.existsById(id)) {
             return new ResponseEntity<>("Booking not found", HttpStatus.NOT_FOUND);
