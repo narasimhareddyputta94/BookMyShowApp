@@ -1,9 +1,8 @@
 package com.bookmyshow.demo.controllers;
 
 import com.bookmyshow.demo.models.Seat;
-import com.bookmyshow.demo.repositories.SeatRepository;
+import com.bookmyshow.demo.services.SeatService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,49 +12,35 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/seats")
 public class SeatController {
+
     @Autowired
-    private SeatRepository seatRepository;
+    private SeatService seatService;
 
     @GetMapping
-    public ResponseEntity<List<Seat>> getAllSeats() {
-        return new ResponseEntity<>(seatRepository.findAll(), HttpStatus.OK);
+    public List<Seat> getAllSeats() {
+        return seatService.getAllSeats();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getSeatById(@PathVariable Long id) {
-        Optional<Seat> seat = seatRepository.findById(id);
-        if (seat.isPresent()) {
-            return new ResponseEntity<>(seat.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Seat not found", HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Seat> getSeatById(@PathVariable Long id) {
+        Optional<Seat> seat = seatService.getSeatById(id);
+        return seat.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Seat> createSeat(@RequestBody Seat seat) {
-        Seat savedSeat = seatRepository.save(seat);
-        return new ResponseEntity<>(savedSeat, HttpStatus.CREATED);
+    public Seat createSeat(@RequestBody Seat seat) {
+        return seatService.saveSeat(seat);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateSeat(@PathVariable Long id, @RequestBody Seat seatDetails) {
-        Optional<Seat> seatOptional = seatRepository.findById(id);
-        if (!seatOptional.isPresent()) {
-            return new ResponseEntity<>("Seat not found", HttpStatus.NOT_FOUND);
-        }
-        Seat seat = seatOptional.get();
-        seat.setSeatNumber(seatDetails.getSeatNumber());
-        seat.setSeatNumber(seatDetails.getSeatType());
-        seatRepository.save(seat);
-        return new ResponseEntity<>(seat, HttpStatus.OK);
+    public ResponseEntity<Optional<Seat>> updateSeat(@PathVariable Long id, @RequestBody Seat seatDetails) {
+        Optional<Optional<Seat>> updatedSeat = Optional.ofNullable(seatService.updateSeat(id, seatDetails));
+        return updatedSeat.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteSeat(@PathVariable Long id) {
-        if (!seatRepository.existsById(id)) {
-            return new ResponseEntity<>("Seat not found", HttpStatus.NOT_FOUND);
-        }
-        seatRepository.deleteById(id);
-        return new ResponseEntity<>("Seat deleted successfully", HttpStatus.OK);
+    public ResponseEntity<Void> deleteSeat(@PathVariable Long id) {
+        seatService.deleteSeat(id);
+        return ResponseEntity.ok().build();
     }
 }

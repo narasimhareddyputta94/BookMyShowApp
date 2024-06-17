@@ -1,8 +1,6 @@
 package com.bookmyshow.demo.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 public class Payment extends BaseModel {
+
     private int amount;
 
     @Enumerated(EnumType.STRING)
@@ -17,4 +16,11 @@ public class Payment extends BaseModel {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentGateWayProvider paymentGateWayProvider;
 }

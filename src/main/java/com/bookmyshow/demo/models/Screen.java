@@ -1,7 +1,6 @@
 package com.bookmyshow.demo.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,11 +10,16 @@ import java.util.List;
 @Setter
 @Entity
 public class Screen extends BaseModel {
+
     private String name;
 
-    @OneToMany
-    private List<Seat> seats;
+    @ManyToOne
+    @JoinColumn(name = "theatre_id")
+    private Theatre theatre;
 
-    @OneToMany
+    @OneToMany(mappedBy = "screen")
     private List<Show> shows;
+
+    @OneToMany(mappedBy = "screen")
+    private List<Seat> seats;
 }
