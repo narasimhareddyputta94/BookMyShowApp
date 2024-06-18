@@ -14,10 +14,13 @@ public class Theatre extends BaseModel {
     private String name;
     private String address;
 
-    @OneToMany(mappedBy = "theatre")
+    @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Screen> screens;
 
     @ManyToOne
     @JoinColumn(name = "region_id")
     private Region region;
+
+    @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Show> shows;
 }

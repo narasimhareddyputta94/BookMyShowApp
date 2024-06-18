@@ -1,7 +1,7 @@
 package com.bookmyshow.demo.controllers;
 
 import com.bookmyshow.demo.models.ShowSeat;
-import com.bookmyshow.demo.repositories.ShowSeatRepositor;
+import com.bookmyshow.demo.services.ShowSeatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,17 +13,18 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/showSeats")
 public class ShowSeatController {
+
     @Autowired
-    private ShowSeatRepositor showSeatRepository;
+    private ShowSeatService showSeatService;
 
     @GetMapping
     public ResponseEntity<List<ShowSeat>> getAllShowSeats() {
-        return new ResponseEntity<>(showSeatRepository.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(showSeatService.getAllShowSeats(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getShowSeatById(@PathVariable Long id) {
-        Optional<ShowSeat> showSeat = showSeatRepository.findById(id);
+        Optional<ShowSeat> showSeat = showSeatService.getShowSeatById(id);
         if (showSeat.isPresent()) {
             return new ResponseEntity<>(showSeat.get(), HttpStatus.OK);
         } else {
@@ -33,29 +34,31 @@ public class ShowSeatController {
 
     @PostMapping
     public ResponseEntity<ShowSeat> createShowSeat(@RequestBody ShowSeat showSeat) {
-        ShowSeat savedShowSeat = showSeatRepository.save(showSeat);
+        ShowSeat savedShowSeat = showSeatService.createShowSeat(showSeat);
         return new ResponseEntity<>(savedShowSeat, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateShowSeat(@PathVariable Long id, @RequestBody ShowSeat showSeatDetails) {
-        Optional<ShowSeat> showSeatOptional = showSeatRepository.findById(id);
-        if (!showSeatOptional.isPresent()) {
+        Optional<ShowSeat> updatedShowSeat = showSeatService.updateShowSeat(id, showSeatDetails);
+        if (!updatedShowSeat.isPresent()) {
             return new ResponseEntity<>("ShowSeat not found", HttpStatus.NOT_FOUND);
         }
-        ShowSeat showSeat = showSeatOptional.get();
-        showSeat.setSeat(showSeatDetails.getSeat());
+        ShowSeat showSeat = updatedShowSeat.get();
+        showSeat.setSeatNumber(showSeatDetails.getSeatNumber()); // Correct method name
         showSeat.setSeatStatus(showSeatDetails.getSeatStatus());
-        showSeatRepository.save(showSeat);
-        return new ResponseEntity<>(showSeat, HttpStatus.OK);
+        showSeat.setSeatType(showSeatDetails.getSeatType());
+        showSeat.setShow(showSeatDetails.getShow());
+        showSeat.setBooking(showSeatDetails.getBooking());
+        return new ResponseEntity<>(showSeatService.updateShowSeat(id, showSeat), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteShowSeat(@PathVariable Long id) {
-        if (!showSeatRepository.existsById(id)) {
+        boolean isDeleted = showSeatService.deleteShowSeat(id);
+        if (!isDeleted) {
             return new ResponseEntity<>("ShowSeat not found", HttpStatus.NOT_FOUND);
         }
-        showSeatRepository.deleteById(id);
         return new ResponseEntity<>("ShowSeat deleted successfully", HttpStatus.OK);
     }
 }

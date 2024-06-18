@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/payments")
@@ -17,36 +18,53 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @GetMapping
-    public List<Payment> getAllPayments() {
-        return paymentService.getAllPayments();
+    public ResponseEntity<List<Payment>> getAllPayments() {
+        return new ResponseEntity<>(paymentService.getAllPayments(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Payment> getPaymentById(@PathVariable Long id) {
-        return paymentService.getPaymentById(id)
-                .map(payment -> new ResponseEntity<>(payment, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Object> getPaymentById(@PathVariable Long id) {
+        Optional<Payment> payment = paymentService.getPaymentById(id);
+        if (payment.isPresent()) {
+            return new ResponseEntity<>(payment.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Payment not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
-        Payment savedPayment = paymentService.createPayment(payment);
-        return new ResponseEntity<>(savedPayment, HttpStatus.CREATED);
+    public ResponseEntity<Object> createPayment(@RequestBody Payment payment) {
+        try {
+            Payment savedPayment = paymentService.createPayment(payment);
+            return new ResponseEntity<>(savedPayment, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error creating payment: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Payment> updatePayment(@PathVariable Long id, @RequestBody Payment paymentDetails) {
+    public ResponseEntity<Object> updatePayment(@PathVariable Long id, @RequestBody Payment paymentDetails) {
         try {
-            Payment updatedPayment = paymentService.updatePayment(id, paymentDetails);
-            return new ResponseEntity<>(updatedPayment, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Optional<Payment> updatedPayment = paymentService.updatePayment(id, paymentDetails);
+            if (!updatedPayment.isPresent()) {
+                return new ResponseEntity<>("Payment not found", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(updatedPayment.get(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating payment: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
-        paymentService.deletePayment(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Object> deletePayment(@PathVariable Long id) {
+        try {
+            boolean isDeleted = paymentService.deletePayment(id);
+            if (!isDeleted) {
+                return new ResponseEntity<>("Payment not found", HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>("Payment deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting payment: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

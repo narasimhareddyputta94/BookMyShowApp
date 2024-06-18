@@ -7,9 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class Payment extends BaseModel {
+public class Payment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private int amount;
+    private double amount;
 
     @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
@@ -18,7 +21,7 @@ public class Payment extends BaseModel {
     private PaymentStatus paymentStatus;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
     @Enumerated(EnumType.STRING)
