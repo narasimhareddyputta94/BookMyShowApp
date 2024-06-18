@@ -1,7 +1,7 @@
 package com.bookmyshow.demo.controllers;
 
 import com.bookmyshow.demo.models.Booking;
-import com.bookmyshow.demo.repositories.BookingRepository;
+import com.bookmyshow.demo.services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,27 +17,16 @@ import java.util.Optional;
 @RequestMapping("/bookings")
 public class BookingController {
     @Autowired
-    private BookingRepository bookingRepository;
+    private BookingService bookingService;
 
-    /**
-     * Retrieves all bookings from the database.
-     *
-     * @return A list of all bookings with HTTP status 200 (OK).
-     */
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
-        return new ResponseEntity<>(bookingRepository.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(bookingService.getAllBookings(), HttpStatus.OK);
     }
 
-    /**
-     * Retrieves a booking by its ID.
-     *
-     * @param id The ID of the booking to retrieve.
-     * @return The booking if found, otherwise an error message with HTTP status 404 (Not Found).
-     */
     @GetMapping("/{id}")
     public ResponseEntity<Object> getBookingById(@PathVariable Long id) {
-        Optional<Booking> booking = bookingRepository.findById(id);
+        Optional<Booking> booking = bookingService.getBookingById(id);
         if (booking.isPresent()) {
             return new ResponseEntity<>(booking.get(), HttpStatus.OK);
         } else {
@@ -45,59 +34,32 @@ public class BookingController {
         }
     }
 
-    /**
-     * Creates a new booking.
-     *
-     * @param booking The booking details to create.
-     * @return The created booking with HTTP status 201 (Created).
-     */
     @PostMapping
-    @Transactional(timeout = 120, isolation = Isolation.SERIALIZABLE)  // 2 minutes timeout, Serializable isolation level
+    @Transactional(timeout = 120, isolation = Isolation.SERIALIZABLE)
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
         booking.setLocked(true);
         booking.setLockTime(LocalDateTime.now());
-        Booking savedBooking = bookingRepository.save(booking);
+        Booking savedBooking = bookingService.createBooking(booking);
         return new ResponseEntity<>(savedBooking, HttpStatus.CREATED);
     }
 
-    /**
-     * Updates an existing booking by its ID.
-     *
-     * @param id The ID of the booking to update.
-     * @param bookingDetails The new booking details.
-     * @return The updated booking with HTTP status 200 (OK), or an error message if the booking is not found.
-     */
     @PutMapping("/{id}")
-    @Transactional(timeout = 120, isolation = Isolation.SERIALIZABLE)  // 2 minutes timeout, Serializable isolation level
+    @Transactional(timeout = 120, isolation = Isolation.SERIALIZABLE)
     public ResponseEntity<Object> updateBooking(@PathVariable Long id, @RequestBody Booking bookingDetails) {
-        Optional<Booking> bookingOptional = bookingRepository.findByIdWithLock(id);
+        Optional<Booking> bookingOptional = Optional.ofNullable(bookingService.updateBooking(id, bookingDetails));
         if (!bookingOptional.isPresent()) {
             return new ResponseEntity<>("Booking not found", HttpStatus.NOT_FOUND);
         }
-        Booking booking = bookingOptional.get();
-        booking.setBookingStatus(bookingDetails.getBookingStatus());
-        booking.setAmount(bookingDetails.getAmount());
-        booking.setPayments(bookingDetails.getPayments());
-        booking.setShowSeats(bookingDetails.getShowSeats());
-        booking.setLocked(true);
-        booking.setLockTime(LocalDateTime.now());
-        bookingRepository.save(booking);
-        return new ResponseEntity<>(booking, HttpStatus.OK);
+        return new ResponseEntity<>(bookingOptional.get(), HttpStatus.OK);
     }
 
-    /**
-     * Deletes a booking by its ID.
-     *
-     * @param id The ID of the booking to delete.
-     * @return A success message with HTTP status 200 (OK) if the booking is deleted, or an error message if the booking is not found.
-     */
     @DeleteMapping("/{id}")
-    @Transactional(timeout = 120, isolation = Isolation.SERIALIZABLE)  // 2 minutes timeout, Serializable isolation level
+    @Transactional(timeout = 120, isolation = Isolation.SERIALIZABLE)
     public ResponseEntity<Object> deleteBooking(@PathVariable Long id) {
-        if (!bookingRepository.existsById(id)) {
+        boolean isDeleted = bookingService.deleteBooking(id);
+        if (!isDeleted) {
             return new ResponseEntity<>("Booking not found", HttpStatus.NOT_FOUND);
         }
-        bookingRepository.deleteById(id);
         return new ResponseEntity<>("Booking deleted successfully", HttpStatus.OK);
     }
 }

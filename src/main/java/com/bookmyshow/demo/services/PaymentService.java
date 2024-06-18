@@ -23,25 +23,46 @@ public class PaymentService {
     }
 
     public Payment createPayment(Payment payment) {
-        return paymentRepository.save(payment);
-    }
-
-    public void deletePayment(Long id) {
-        paymentRepository.deleteById(id);
-    }
-
-    public Payment updatePayment(Long id, Payment paymentDetails) {
-        Optional<Payment> optionalPayment = paymentRepository.findById(id);
-        if (optionalPayment.isPresent()) {
-            Payment payment = optionalPayment.get();
-            payment.setAmount(paymentDetails.getAmount());
-            payment.setPaymentMode(paymentDetails.getPaymentMode());
-            payment.setPaymentStatus(paymentDetails.getPaymentStatus());
-            payment.setBooking(paymentDetails.getBooking());
-            payment.setPaymentGateWayProvider(paymentDetails.getPaymentGateWayProvider());
+        try {
             return paymentRepository.save(payment);
-        } else {
-            throw new RuntimeException("Payment not found with id " + id);
+        } catch (Exception e) {
+            System.err.println("Error creating payment: " + e.getMessage());
+            e.printStackTrace();  // Print stack trace for debugging
+            throw e;
+        }
+    }
+
+    public Optional<Payment> updatePayment(Long id, Payment paymentDetails) {
+        try {
+            Optional<Payment> paymentOptional = paymentRepository.findById(id);
+            if (paymentOptional.isPresent()) {
+                Payment payment = paymentOptional.get();
+                payment.setAmount(paymentDetails.getAmount());
+                payment.setPaymentMode(paymentDetails.getPaymentMode());
+                payment.setPaymentStatus(paymentDetails.getPaymentStatus());
+                payment.setBooking(paymentDetails.getBooking());
+                payment.setPaymentGateWayProvider(paymentDetails.getPaymentGateWayProvider());
+                return Optional.of(paymentRepository.save(payment));
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            System.err.println("Error updating payment: " + e.getMessage());
+            e.printStackTrace();  // Print stack trace for debugging
+            throw e;
+        }
+    }
+
+    public boolean deletePayment(Long id) {
+        try {
+            if (paymentRepository.existsById(id)) {
+                paymentRepository.deleteById(id);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error deleting payment: " + e.getMessage());
+            e.printStackTrace();  // Print stack trace for debugging
+            throw e;
         }
     }
 }

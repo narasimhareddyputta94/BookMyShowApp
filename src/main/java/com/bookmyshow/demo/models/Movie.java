@@ -18,4 +18,7 @@ public class Movie {
     private String genre;
     private int duration;  // Duration in minutes
     private String releaseDate;
+    private String language;
+    private String director;
+    private String name;
 }

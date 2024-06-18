@@ -38,7 +38,13 @@ public class BookingService {
         return null;
     }
 
-    public void deleteBooking(Long id) {
-        bookingRepository.deleteById(id);
+    public boolean deleteBooking(Long id) {
+        Optional<Booking> bookingOptional = bookingRepository.findById(id);
+        if (bookingOptional.isPresent()) {
+            bookingRepository.delete(bookingOptional.get());
+            return true;
+        }
+        return false;
     }
 }
+

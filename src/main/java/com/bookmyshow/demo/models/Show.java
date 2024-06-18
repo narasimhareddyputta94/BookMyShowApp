@@ -12,6 +12,11 @@ import java.util.List;
 @Entity
 @Table(name = "`show`")
 public class Show extends BaseModel {
+
+    @ManyToOne
+    @JoinColumn(name = "theatre_id")
+    private Theatre theatre;
+
     private Date startTime;
     private Date endTime;
 
@@ -23,6 +28,6 @@ public class Show extends BaseModel {
     @JoinColumn(name = "screen_id")
     private Screen screen;
 
-    @OneToMany(mappedBy = "show")
+    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShowSeatType> showSeatTypes;
 }
