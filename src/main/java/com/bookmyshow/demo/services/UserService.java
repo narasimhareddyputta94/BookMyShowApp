@@ -11,8 +11,12 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -27,19 +31,19 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found with id " + id);
+        }
         userRepository.deleteById(id);
     }
 
     public User updateUser(Long id, User userDetails) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        return userRepository.findById(id).map(user -> {
             user.setName(userDetails.getName());
             user.setEmail(userDetails.getEmail());
+            user.setPassword(userDetails.getPassword());
             // update other fields as necessary
             return userRepository.save(user);
-        } else {
-            throw new RuntimeException("User not found with id " + id);
-        }
+        }).orElseThrow(() -> new RuntimeException("User not found with id " + id));
     }
 }
