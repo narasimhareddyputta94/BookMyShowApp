@@ -12,7 +12,6 @@ import java.util.List;
 @Entity
 @Table(name = "`show`")
 public class Show extends BaseModel {
-
     @ManyToOne
     @JoinColumn(name = "theatre_id")
     private Theatre theatre;

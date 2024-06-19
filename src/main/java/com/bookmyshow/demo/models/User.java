@@ -1,25 +1,20 @@
 package com.bookmyshow.demo.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
-@Entity
-@Setter
 @Getter
-
-
-public class User extends BaseModel{
-
+@Setter
+@Entity
+public class User extends BaseModel {
     private String name;
     private String email;
     private String phoneNumber;
     private String password;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings;
-
 }

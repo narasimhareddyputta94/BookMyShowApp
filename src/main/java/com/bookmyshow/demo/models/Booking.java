@@ -36,5 +36,5 @@ public class Booking {
     private List<Payment> payments;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    private List<ShowSeat> showSeats;  // Ensure this mapping is correct
+    private List<ShowSeat> showSeats;
 }
