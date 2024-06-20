@@ -9,9 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class Theatreservice {
+public class TheatreService {
+
+    private final TheatreRepository theatreRepository;
+
     @Autowired
-    private TheatreRepository theatreRepository;
+    public TheatreService(TheatreRepository theatreRepository) {
+        this.theatreRepository = theatreRepository;
+    }
 
     public List<Theatre> getAllTheatres() {
         return theatreRepository.findAll();
@@ -26,21 +31,18 @@ public class Theatreservice {
     }
 
     public Theatre updateTheatre(Long id, Theatre theatreDetails) {
-        Optional<Theatre> theatreOptional = theatreRepository.findById(id);
-        if (theatreOptional.isPresent()) {
-            Theatre theatre = theatreOptional.get();
+        return theatreRepository.findById(id).map(theatre -> {
             theatre.setName(theatreDetails.getName());
             theatre.setAddress(theatreDetails.getAddress());
             theatre.setRegion(theatreDetails.getRegion());
             return theatreRepository.save(theatre);
-
-        }
-        return null;
+        }).orElseThrow(() -> new RuntimeException("Theatre not found with id " + id));
     }
 
     public void deleteTheatre(Long id) {
+        if (!theatreRepository.existsById(id)) {
+            throw new RuntimeException("Theatre not found with id " + id);
+        }
         theatreRepository.deleteById(id);
     }
-
-
 }
