@@ -14,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -79,22 +80,25 @@ class UserControllerTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("test@example.com");
+        user.setRoles(List.of("ROLE_USER")); // Set roles
 
         User updatedDetails = new User();
         updatedDetails.setEmail("new@example.com");
         updatedDetails.setPassword("newPassword");
+        updatedDetails.setRoles(List.of("ROLE_USER")); // Set roles
 
         when(userService.updateUser(anyLong(), any(User.class))).thenReturn(updatedDetails);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/users/1")
                         .with(csrf()) // Add CSRF token
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"new@example.com\", \"password\": \"newPassword\"}"))
+                        .content("{\"email\": \"new@example.com\", \"password\": \"newPassword\", \"roles\": [\"ROLE_USER\"]}")) // Include roles in the JSON
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("new@example.com"));
 
         verify(userService, times(1)).updateUser(anyLong(), any(User.class));
     }
+
 
     @Test
     @WithMockUser
